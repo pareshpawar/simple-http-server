@@ -12,7 +12,7 @@ Simple HTTP Server that returns ip address, headers and many other request data.
   - And Environment Varibale called `YOUR_ENV`
 
 ### How to use it?
-- I've hosted this imager on docker hub and quay.io
+- I've hosted this imager on docker hub or you can build it yourself if you want to
 - 
     ```bash
     sudo docker run -p 8081:8081 pareshpawar/simple-http-server
