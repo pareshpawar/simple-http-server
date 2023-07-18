@@ -1,5 +1,5 @@
-# simple-http-server in Go as a Container Image
-Simple HTTP Server that returns ip address, headers and many other request data. use this as a test app to to deploy in your servers or practice to deploy
+# Simple HTTP Server in Go as a Container Image
+`simple-http-server` returns ip address, headers and many other request data. use this as a test app to to deploy in your servers or practice to deploy
 
 ### How it works?
 - starts listening on port 8081 for http traffic
