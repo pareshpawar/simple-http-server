@@ -1,31 +1,34 @@
 package main
-import("github.com/common-nighthawk/go-figure")
 
 import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
- 	"net/http"
+	"time"
+
+	"github.com/common-nighthawk/go-figure"
 )
 
 func main() {
 	http.HandleFunc("/", handler)
 	serverBrand := figure.NewColorFigure("Simple HTTP Server", "straight", "green", true)
-  	serverBrand.Print()
+	serverBrand.Print()
 	myBrand := figure.NewColorFigure("by PareshPawar.com", "term", "green", true)
-  	myBrand.Print()
+	myBrand.Print()
 	log.Print("pareshpawar/simple-http-server: Server Started on port 8081")
 	log.Fatal(http.ListenAndServe("0.0.0.0:8081", nil))
 }
 
-
 func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("%s %s %s  ===> from %s\n", r.Method, r.URL, r.Proto, r.RemoteAddr)
+	timestamp := time.Now()
+	fmt.Printf("%s %s %s %s  ===> from %s\n", timestamp, r.Method, r.URL, r.Proto, r.RemoteAddr)
+	fmt.Fprintf(w, "Request Time	==> %s\n", timestamp)
 	fmt.Fprintf(w, "Request Type	==> %s %s %s\n", r.Method, r.URL, r.Proto)
 	fmt.Fprintf(w, "Hostname/Host 	==> %s\n", r.Host)
 	fmt.Fprintf(w, "Remote Address 	==> %s\n", r.RemoteAddr)
-	fmt.Fprintf(w, "Local Address 	==> %s\n\n",GetOutboundIP())
+	fmt.Fprintf(w, "Local Address 	==> %s\n\n", GetOutboundIP())
 
 	// print request headers
 	for key, value := range r.Header {
@@ -55,11 +58,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetOutboundIP() net.IP {
-    conn, err := net.Dial("udp", "1.1.1.1:80")
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer conn.Close()
-    localAddr := conn.LocalAddr().(*net.UDPAddr)
-    return localAddr.IP
+	conn, err := net.Dial("udp", "1.1.1.1:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	return localAddr.IP
 }
