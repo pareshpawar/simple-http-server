@@ -1,4 +1,4 @@
-# simple-http-server for as container image
+# simple-http-server in Go as a Container Image
 Simple HTTP Server that returns ip address, headers and many other request data. use this as a test app to to deploy in your servers or practice to deploy
 
 ### How it works?
@@ -20,6 +20,6 @@ Simple HTTP Server that returns ip address, headers and many other request data.
 - optionally, forward port via your proxy or load balancer
 
 #### To Do
-[] Make std output/logs pretty and colored
-[] Add Environment Variable to switch text output to html output
-[] Serve a html pages from a external directory
+- [ ] Make std output/logs colored and pretty 😅
+- [ ] Add Environment Variable to switch text output to html output
+- [ ] Serve a html pages from a external directory
