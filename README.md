@@ -18,3 +18,8 @@ Simple HTTP Server that returns ip address, headers and many other request data.
     sudo docker run -p 8081:8081 pareshpawar/simple-http-server
     ``` 
 - optionally, forward port via your proxy or load balancer
+
+#### To Do
+[] Make std output/logs pretty and colored
+[] Add Environment Variable to switch text output to html output
+[] Serve a html pages from a external directory
