@@ -20,6 +20,7 @@
 - optionally, forward port via your proxy or load balancer
 
 #### To Do
-- [ ] Make std output/logs colored and pretty 😅
+- [x] Make std output/logs colored and pretty 😅
 - [ ] Add Environment Variable to switch text output to html output
 - [ ] Serve a html pages from a external directory
+- [ ] Add volume Env var to serve volume as http dir

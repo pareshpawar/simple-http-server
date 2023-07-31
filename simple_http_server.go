@@ -23,7 +23,18 @@ func main() {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	timestamp := time.Now()
-	fmt.Printf("%s %s %s %s  ===> from %s\n", timestamp, r.Method, r.URL, r.Proto, r.RemoteAddr)
+	if r.Method == "GET" {
+		fmt.Print(string("\033[34m"))
+	} else if r.Method == "POST" {
+		fmt.Print(string("\033[33m"))
+	} else if r.Method == "PUT" {
+		fmt.Print(string("\033[35m"))
+	} else if r.Method == "DELETE" {
+		fmt.Print(string("\033[31m"))
+	} else {
+		fmt.Print(string("\033[36m"))
+	}
+	fmt.Printf("%s %s %s %s  ===> from %s\n", timestamp.Local(), r.Method, r.URL, r.Proto, r.RemoteAddr)
 	fmt.Fprintf(w, "Request Time	==> %s\n", timestamp)
 	fmt.Fprintf(w, "Request Type	==> %s %s %s\n", r.Method, r.URL, r.Proto)
 	fmt.Fprintf(w, "Hostname/Host 	==> %s\n", r.Host)
