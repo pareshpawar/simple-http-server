@@ -17,7 +17,7 @@ func main() {
 	serverBrand.Print()
 	myBrand := figure.NewColorFigure("by PareshPawar.com", "term", "green", true)
 	myBrand.Print()
-	log.Print("pareshpawar/simple-http-server: Simple HTTP Server Started on port 8081")
+	log.Print("pareshpawar/simple-http-server: Simple HTTP Server Running on port 8081")
 	log.Fatal(http.ListenAndServe("0.0.0.0:8081", nil))
 }
 
