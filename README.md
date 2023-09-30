@@ -24,3 +24,4 @@
 - [ ] Add Environment Variable to switch text output to html output
 - [ ] Serve a html pages from a external directory
 - [ ] Add volume Env var to serve volume as http dir
+- [ ] create github actions for docker image build
