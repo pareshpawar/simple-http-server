@@ -4,7 +4,7 @@
 
 ### How it works?
 
-- Starts listening on port 8081 for http traffic
+- Starts listening on port 8081 for HTTP traffic
 - On every request it returns following things:
   - Request Type
   - Hostname or Host of request
