@@ -13,6 +13,7 @@ import (
 
 func main() {
 	http.HandleFunc("/", handler)
+	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.Dir("./html"))))
 	serverBrand := figure.NewColorFigure("Simple HTTP Server", "straight", "green", true)
 	serverBrand.Print()
 	myBrand := figure.NewColorFigure("by PareshPawar.com", "term", "green", true)
