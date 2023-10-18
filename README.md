@@ -26,6 +26,7 @@
 #### To Do
 
 - [x] Make std output/logs colored and pretty 😅
+- [x] Serving html file as output on ```/html/``` endpoint
 - [ ] Add Environment Variable to switch text output to html output
 - [ ] Serve a html pages from a external directory
 - [ ] Add volume Env var to serve volume as http dir
