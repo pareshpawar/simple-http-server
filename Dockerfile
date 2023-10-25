@@ -13,7 +13,7 @@ WORKDIR /build
 COPY . .
 
 # Build the application
-RUN go build -o simple_http_server ./simple_http_server.go ./utils.go
+RUN go build -o simple_http_server ./simple_http_server.go
 
 # Move to /dist directory as the place for resulting binary folder
 WORKDIR /dist
