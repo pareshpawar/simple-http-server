@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/common-nighthawk/go-figure"
+
+	"pareshpawar.com/simple-http-server/utils"
 )
 
 func main() {
@@ -40,7 +41,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Request Type	==> %s %s %s\n", r.Method, r.URL, r.Proto)
 	fmt.Fprintf(w, "Hostname/Host 	==> %s\n", r.Host)
 	fmt.Fprintf(w, "Remote Address 	==> %s\n", r.RemoteAddr)
-	fmt.Fprintf(w, "Local Address 	==> %s\n\n", GetOutboundIP())
+	fmt.Fprintf(w, "Local Address 	==> %s\n\n", utils.GetMyOutboundIP())
 
 	// print request headers
 	for key, value := range r.Header {
@@ -67,14 +68,4 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "----------------------------------------------------------\n")
 	fmt.Fprintf(w, "                    by PareshPawar.com                    \n")
 	fmt.Fprintf(w, "----------------------------------------------------------\n")
-}
-
-func GetOutboundIP() net.IP {
-	conn, err := net.Dial("udp", "1.1.1.1:80")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close()
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	return localAddr.IP
 }
