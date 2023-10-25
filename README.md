@@ -12,6 +12,7 @@
   - Remote IP
   - All Request Headers
   - And Environment Variable called `YOUR_ENV`
+  - optionally mount html dir to `/dist/html` to serve html pages
 
 ### How to use it?
 

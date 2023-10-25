@@ -1,4 +1,4 @@
-module pareshpawar/simple-http-server
+module pareshpawar.com/simple-http-server
 
 go 1.20
 
