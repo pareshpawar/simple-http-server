@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple HTTP Server</title>
-</head>
-<body>
-    <h1>Welcome to Simple HTTP Server</h1>
-    <h3>by Paresh Pawar</h3>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Simple HTTP Server</title>
+    </head>
+    <body>
+        <h1>Welcome to Simple HTTP Server</h1>
+        <h3>by Paresh Pawar</h3>
+        <ul>
+            <li>Origin IP: {{.Origin}}</li>
+            <li>Request Method: {{.Type}}</li>
+            <li>Destination: {{.Hostname}}</li>
+        </ul>
+    </body>
 </html>

@@ -2,25 +2,53 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/common-nighthawk/go-figure"
-
 	"pareshpawar.com/simple-http-server/utils"
 )
 
 func main() {
 	http.HandleFunc("/", handler)
-	http.Handle("/html/", http.StripPrefix("/html/", http.FileServer(http.Dir("./html"))))
+	http.HandleFunc("/html/", htmlhandler)
 	serverBrand := figure.NewColorFigure("Simple HTTP Server", "straight", "green", true)
 	serverBrand.Print()
 	myBrand := figure.NewColorFigure("by PareshPawar.com", "term", "green", true)
 	myBrand.Print()
 	log.Print("pareshpawar/simple-http-server: Simple HTTP Server Running on port 8081")
 	log.Fatal(http.ListenAndServe("0.0.0.0:8081", nil))
+}
+
+func check(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func htmlhandler(w http.ResponseWriter, r *http.Request){
+
+	file, err := os.ReadFile("html/index.html")
+	check(err)
+
+	template, err := template.New("webpage").Parse(string(file))
+	check(err)
+
+	data := struct {
+		Origin string
+		Type string
+		Hostname string
+	}{
+		Origin: r.RemoteAddr,
+		Type: r.Method,
+		Hostname: r.Host,
+	}
+
+	err = template.Execute(w, data)
+	check(err)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
