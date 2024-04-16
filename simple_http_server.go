@@ -15,6 +15,7 @@ import (
 func main() {
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/html/", htmlhandler)
+	http.HandleFunc("/healthcheck", healthhandler)
 	serverBrand := figure.NewColorFigure("Simple HTTP Server", "straight", "green", true)
 	serverBrand.Print()
 	myBrand := figure.NewColorFigure("by PareshPawar.com", "term", "green", true)
@@ -96,4 +97,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "----------------------------------------------------------\n")
 	fmt.Fprintf(w, "                    by PareshPawar.com                    \n")
 	fmt.Fprintf(w, "----------------------------------------------------------\n")
+}
+
+func healthhandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "OK\n")
 }
