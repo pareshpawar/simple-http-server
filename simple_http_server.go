@@ -30,7 +30,20 @@ func check(err error) {
 	}
 }
 
-func htmlhandler(w http.ResponseWriter, r *http.Request){
+func htmlhandler(w http.ResponseWriter, r *http.Request) {
+	timestamp := time.Now()
+	if r.Method == "GET" {
+		fmt.Print(string("\033[34m"))
+	} else if r.Method == "POST" {
+		fmt.Print(string("\033[33m"))
+	} else if r.Method == "PUT" {
+		fmt.Print(string("\033[35m"))
+	} else if r.Method == "DELETE" {
+		fmt.Print(string("\033[31m"))
+	} else {
+		fmt.Print(string("\033[36m"))
+	}
+	fmt.Printf("%s %s %s %s  ===> from %s\n", timestamp.Local(), r.Method, r.URL, r.Proto, r.RemoteAddr)
 
 	file, err := os.ReadFile("html/index.html")
 	check(err)
@@ -38,14 +51,21 @@ func htmlhandler(w http.ResponseWriter, r *http.Request){
 	template, err := template.New("webpage").Parse(string(file))
 	check(err)
 
+	type reqDataStruct struct{ ReqTime, ReqType, Host, Remote, RemoteAddr string }
+	reqData := reqDataStruct{
+		ReqTime:    timestamp.String(),
+		ReqType:    r.Proto + " " + r.Method + " " + r.URL.Path,
+		Host:       r.Host,
+		Remote:     r.RemoteAddr,
+		RemoteAddr: utils.GetMyOutboundIP().String(),
+	}
+
 	data := struct {
-		Origin string
-		Type string
-		Hostname string
+		Request reqDataStruct
+		Headers http.Header
 	}{
-		Origin: r.RemoteAddr,
-		Type: r.Method,
-		Hostname: r.Host,
+		Request: reqData,
+		Headers: r.Header,
 	}
 
 	err = template.Execute(w, data)
