@@ -1,6 +1,7 @@
 # Simple HTTP Server in Go as a Container Image
+[![ci](https://github.com/pareshpawar/simple-http-server/actions/workflows/main.yml/badge.svg)](https://github.com/pareshpawar/simple-http-server/actions/workflows/main.yml)
 
-`simple-http-server` returns IP address, headers and many other request data. Use this as a test app to to deploy in your servers or practice to deploy.
+`simple-http-server` returns IP address, headers and many other request data. Use this as a test app to to deploy in your servers or practice to deploy. you can use this image in docker or kubernetes based deployments
 
 ### How it works?
 
@@ -28,7 +29,7 @@
 
 - [x] Make std output/logs colored and pretty 😅
 - [x] Serving html file as output on ```/html/``` endpoint
+- [x] create github actions for docker image build
 - [ ] Add Environment Variable to switch text output to html output
 - [ ] Serve a html pages from a external directory
 - [ ] Add volume Env var to serve volume as http dir
-- [ ] create github actions for docker image build
