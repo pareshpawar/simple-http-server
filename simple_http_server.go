@@ -1,63 +1,115 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/common-nighthawk/go-figure"
 	"pareshpawar.com/simple-http-server/utils"
 )
 
+var (
+	cachedOutboundIP string
+	indexTemplate    *template.Template
+)
+
 func main() {
+	// Resolve outbound IP once at startup
+	ip, err := utils.GetMyOutboundIP()
+	if err != nil {
+		log.Printf("Warning: could not determine outbound IP: %v", err)
+		cachedOutboundIP = "unavailable"
+	} else {
+		cachedOutboundIP = ip.String()
+	}
+
+	// Parse HTML template once at startup
+	file, err := os.ReadFile("html/index.html")
+	if err != nil {
+		log.Printf("Warning: could not read html/index.html: %v (the /html/ endpoint will be unavailable)", err)
+	} else {
+		tmpl, err := template.New("webpage").Parse(string(file))
+		if err != nil {
+			log.Printf("Warning: could not parse html/index.html: %v (the /html/ endpoint will be unavailable)", err)
+		} else {
+			indexTemplate = tmpl
+		}
+	}
+
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/html/", htmlhandler)
 	http.HandleFunc("/healthcheck", healthhandler)
+
 	serverBrand := figure.NewColorFigure("Simple HTTP Server", "straight", "green", true)
 	serverBrand.Print()
 	myBrand := figure.NewColorFigure("by PareshPawar.com", "term", "green", true)
 	myBrand.Print()
 	log.Print("pareshpawar/simple-http-server: Simple HTTP Server Running on port 8081")
-	log.Fatal(http.ListenAndServe("0.0.0.0:8081", nil))
+
+	srv := &http.Server{
+		Addr:         "0.0.0.0:8081",
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown:", err)
+	}
+	log.Println("Server exited")
 }
 
-func check(err error) {
-	if err != nil {
-		log.Fatal(err)
+func logRequest(r *http.Request) {
+	colors := map[string]string{
+		"GET":    "\033[34m",
+		"POST":   "\033[33m",
+		"PUT":    "\033[35m",
+		"DELETE": "\033[31m",
 	}
+	color, ok := colors[r.Method]
+	if !ok {
+		color = "\033[36m"
+	}
+	fmt.Printf("%s%s %s %s %s  ===> from %s\033[0m\n",
+		color, time.Now().Local(), r.Method, r.URL, r.Proto, r.RemoteAddr)
 }
 
 func htmlhandler(w http.ResponseWriter, r *http.Request) {
-	timestamp := time.Now()
-	if r.Method == "GET" {
-		fmt.Print(string("\033[34m"))
-	} else if r.Method == "POST" {
-		fmt.Print(string("\033[33m"))
-	} else if r.Method == "PUT" {
-		fmt.Print(string("\033[35m"))
-	} else if r.Method == "DELETE" {
-		fmt.Print(string("\033[31m"))
-	} else {
-		fmt.Print(string("\033[36m"))
+	logRequest(r)
+
+	if indexTemplate == nil {
+		http.Error(w, "HTML template not available", http.StatusInternalServerError)
+		return
 	}
-	fmt.Printf("%s %s %s %s  ===> from %s\n", timestamp.Local(), r.Method, r.URL, r.Proto, r.RemoteAddr)
 
-	file, err := os.ReadFile("html/index.html")
-	check(err)
-
-	template, err := template.New("webpage").Parse(string(file))
-	check(err)
-
+	timestamp := time.Now()
 	type reqDataStruct struct{ ReqTime, ReqType, Host, Remote, RemoteAddr string }
 	reqData := reqDataStruct{
 		ReqTime:    timestamp.String(),
 		ReqType:    r.Proto + " " + r.Method + " " + r.URL.Path,
 		Host:       r.Host,
 		Remote:     r.RemoteAddr,
-		RemoteAddr: utils.GetMyOutboundIP().String(),
+		RemoteAddr: cachedOutboundIP,
 	}
 
 	data := struct {
@@ -68,29 +120,20 @@ func htmlhandler(w http.ResponseWriter, r *http.Request) {
 		Headers: r.Header,
 	}
 
-	err = template.Execute(w, data)
-	check(err)
+	if err := indexTemplate.Execute(w, data); err != nil {
+		log.Printf("Error executing template: %v", err)
+	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
+	logRequest(r)
+
 	timestamp := time.Now()
-	if r.Method == "GET" {
-		fmt.Print(string("\033[34m"))
-	} else if r.Method == "POST" {
-		fmt.Print(string("\033[33m"))
-	} else if r.Method == "PUT" {
-		fmt.Print(string("\033[35m"))
-	} else if r.Method == "DELETE" {
-		fmt.Print(string("\033[31m"))
-	} else {
-		fmt.Print(string("\033[36m"))
-	}
-	fmt.Printf("%s %s %s %s  ===> from %s\n", timestamp.Local(), r.Method, r.URL, r.Proto, r.RemoteAddr)
-	fmt.Fprintf(w, "Request Time	==> %s\n", timestamp)
-	fmt.Fprintf(w, "Request Type	==> %s %s %s\n", r.Method, r.URL, r.Proto)
-	fmt.Fprintf(w, "Hostname/Host 	==> %s\n", r.Host)
-	fmt.Fprintf(w, "Remote Address 	==> %s\n", r.RemoteAddr)
-	fmt.Fprintf(w, "Local Address 	==> %s\n\n", utils.GetMyOutboundIP())
+	fmt.Fprintf(w, "Request Time\t==> %s\n", timestamp)
+	fmt.Fprintf(w, "Request Type\t==> %s %s %s\n", r.Method, r.URL, r.Proto)
+	fmt.Fprintf(w, "Hostname/Host \t==> %s\n", r.Host)
+	fmt.Fprintf(w, "Remote Address \t==> %s\n", r.RemoteAddr)
+	fmt.Fprintf(w, "Local Address \t==> %s\n\n", cachedOutboundIP)
 
 	// print request headers
 	for key, value := range r.Header {
