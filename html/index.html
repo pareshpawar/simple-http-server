@@ -1,59 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Simple HTTP Server</title>
-        <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 20px;
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple HTTP Server</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --fg: #1f2328;
+            --muted: #59636e;
+            --border: #d1d9e0;
+            --header-bg: #f6f8fa;
+            --accent: #1a7f37;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0d1117;
+                --fg: #e6edf3;
+                --muted: #9198a1;
+                --border: #3d444d;
+                --header-bg: #151b23;
+                --accent: #3fb950;
             }
-            h1, h3 {
-              text-align: center;
-            }
-            ul {
-              list-style-type: none;
-              padding: 0;
-            }
-            li {
-              margin-bottom: 10px;
-            }
-            table {
-              border-collapse: collapse;
-              width: 100%;
-            }
-            th, td {
-              border: 1px solid #ccc;
-              padding: 8px;
-              text-align: left;   
-        
-            }
-            th {
-              background-color: #f2f2f2;
-            }
-          </style>
-    </head>
-    <body>
-        <h1>Welcome to Simple HTTP Server</h1>
-        <h3>by Paresh Pawar</h3>
-        <ul>
-            <li>Request: {{.Request.ReqTime}}</li>
-            <li>Type: {{.Request.ReqType}}</li>
-            <li>Host: {{.Request.Host}}</li>
-            <li>Remote Address: {{.Request.RemoteAddr}}</li>
-        </ul>
-        <table>
-            <tr>
-                <th>Key</th>
-                <th>Value</th>
-            </tr>
-            {{ range $key, $value := .Headers }}
-            <tr>
-                <td>{{ $key }}</td>
-                <td>{{ $value }}</td>
-            </tr>
-            {{ end }}
-        </table>
-    </body>
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            margin: 0 auto;
+            padding: 20px 16px;
+            max-width: 960px;
+        }
+        h1, h3 { text-align: center; }
+        h1 { color: var(--accent); margin-bottom: 4px; }
+        h3 { color: var(--muted); font-weight: normal; margin-top: 0; }
+        h2 { font-size: 1.1rem; margin-top: 28px; }
+        table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+        th { background-color: var(--header-bg); }
+        th:first-child, td:first-child { width: 30%; }
+        code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+        pre {
+            background: var(--header-bg);
+            border: 1px solid var(--border);
+            padding: 12px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Simple HTTP Server</h1>
+    <h3>by Paresh Pawar</h3>
+
+    <h2>Request</h2>
+    <table>
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td>Request Time</td><td>{{ .Info.Time }}</td></tr>
+        <tr><td>Request Type</td><td><code>{{ .Info.Proto }} {{ .Info.Method }} {{ .Info.URL }}</code></td></tr>
+        <tr><td>Host</td><td>{{ .Info.Host }}</td></tr>
+        <tr><td>Remote Address</td><td>{{ .Info.RemoteAddr }}</td></tr>
+        <tr><td>Client IP</td><td>{{ .Info.ClientIP }}</td></tr>
+        <tr><td>Local Address</td><td>{{ .Info.LocalIP }}</td></tr>
+        <tr><td>Server Hostname</td><td>{{ .Info.Hostname }}</td></tr>
+        <tr><td>Server Version</td><td>{{ .Info.Version }}</td></tr>
+    </table>
+
+    <h2>Headers</h2>
+    <table>
+        <tr><th>Key</th><th>Value</th></tr>
+        {{- range $key, $value := .Info.Headers }}
+        <tr><td>{{ $key }}</td><td>{{ join $value ", " }}</td></tr>
+        {{- end }}
+    </table>
+
+    {{- if .Info.Form }}
+    <h2>Form Data</h2>
+    <table>
+        <tr><th>Key</th><th>Value</th></tr>
+        {{- range $key, $value := .Info.Form }}
+        <tr><td>{{ $key }}</td><td>{{ join $value ", " }}</td></tr>
+        {{- end }}
+    </table>
+    {{- end }}
+
+    {{- if .Info.Body }}
+    <h2>Body ({{ .Info.BodySize }} bytes{{ if .Info.BodyTruncated }}, truncated{{ end }})</h2>
+    <pre>{{ .Info.Body }}</pre>
+    {{- end }}
+
+    <h2>Environment</h2>
+    <table>
+        <tr><th>Variable</th><th>Value</th></tr>
+        {{- range $key, $value := .Info.Env }}
+        <tr><td>{{ $key }}</td><td>{{ $value }}</td></tr>
+        {{- end }}
+    </table>
+</body>
 </html>

@@ -8,6 +8,7 @@
 *.so
 *.dylib
 simple-http-server
+simple_http_server
 
 # Test binary, built with `go test -c`
 *.test
