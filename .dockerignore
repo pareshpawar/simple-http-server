@@ -1,0 +1,10 @@
+.git
+.github
+.dockerignore
+Dockerfile
+Makefile
+README.md
+LICENSE
+*_test.go
+simple_http_server
+simple-http-server

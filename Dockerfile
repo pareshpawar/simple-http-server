@@ -1,30 +1,36 @@
-FROM golang:alpine AS builder
+# syntax=docker/dockerfile:1
 
-# Set necessary environmet variables needed for our image
-ENV GO111MODULE=on \
-    CGO_ENABLED=0 \
-    GOOS=linux \
-    GOARCH=amd64
+# Build on the native platform and cross-compile for the target one, so
+# multi-arch images (linux/amd64, linux/arm64, ...) build quickly.
+FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
 
-# Move to working directory /build
+ARG TARGETOS
+ARG TARGETARCH
+ARG VERSION=dev
+
 WORKDIR /build
 
-# Copy the code into the container
+# Download dependencies first so they are cached between code changes.
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
+    go build -trimpath -ldflags="-s -w -X main.version=${VERSION}" -o /out/simple_http_server .
 
-# Build the application
-RUN go build -o simple_http_server .
+FROM alpine:3.20
 
-# Build a small image
-FROM alpine
-RUN apk update && apk add curl
+# curl is kept for debugging from inside the container (docker exec ... curl).
+RUN apk add --no-cache ca-certificates curl \
+    && adduser -D -H -u 10001 app
 
-COPY --from=builder /build/simple_http_server /simple_http_server
-COPY --from=builder /build/html /html
+COPY --from=builder /out/simple_http_server /simple_http_server
 
 WORKDIR /
+USER app
 
 EXPOSE 8081
 
-HEALTHCHECK --interval=5s --timeout=10s --retries=3 CMD curl -sS 127.0.0.1:8081/healthcheck || exit 1
+# The binary probes its own /healthz endpoint (respects PORT / BIND_ADDRESS).
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 CMD ["/simple_http_server", "-healthcheck"]
 ENTRYPOINT ["/simple_http_server"]
